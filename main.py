@@ -1,15 +1,19 @@
 import base64
+import logging
 import os
 import shutil
 import tempfile
-import httpx
 
+import httpx
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
 from remove_black_bg import remove_black_background
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyDqOM04OQpTAkWmbAVJxMNBnN9GEDkMYLw")
 GEMINI_URL = (
@@ -26,7 +30,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Serve static assets (our frontend)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
@@ -40,14 +43,19 @@ async def process(
     file: UploadFile = File(...),
     threshold: int = Form(30),
     quality: int = Form(95),
-    feather: bool = Form(True),
+    feather: str = Form("true"),   # receive as string, parse manually
 ):
+    feather_bool = feather.lower() not in ("false", "0", "no", "off")
+
     # ── 1. Read uploaded image ─────────────────────────────────────────────────
     raw_bytes = await file.read()
     mime_type = file.content_type or "image/png"
+    # Normalise mime type
+    if mime_type not in ("image/png", "image/jpeg", "image/webp", "image/gif"):
+        mime_type = "image/png"
     b64_image = base64.b64encode(raw_bytes).decode()
 
-    # ── 2. Call Gemini to make logo white on black background ──────────────────
+    # ── 2. Call Gemini ─────────────────────────────────────────────────────────
     payload = {
         "contents": [
             {
@@ -72,38 +80,58 @@ async def process(
         },
     }
 
-    async with httpx.AsyncClient(timeout=120.0) as client:
-        resp = await client.post(
-            GEMINI_URL,
-            headers={
-                "Content-Type": "application/json",
-                "x-goog-api-key": GEMINI_API_KEY,
-            },
-            json=payload,
-        )
+    logger.info("Calling Gemini API with mime_type=%s, data_len=%d", mime_type, len(b64_image))
+    try:
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            resp = await client.post(
+                GEMINI_URL,
+                headers={
+                    "Content-Type": "application/json",
+                    "x-goog-api-key": GEMINI_API_KEY,
+                },
+                json=payload,
+            )
+    except Exception as e:
+        logger.exception("HTTP request to Gemini failed")
+        raise HTTPException(status_code=502, detail=f"Network error calling Gemini: {e}")
+
+    logger.info("Gemini response status: %d", resp.status_code)
 
     if resp.status_code != 200:
-        raise HTTPException(status_code=502, detail=f"Gemini API error: {resp.text}")
+        error_body = resp.text[:500]
+        logger.error("Gemini API error: %s", error_body)
+        raise HTTPException(status_code=502, detail=f"Gemini API error {resp.status_code}: {error_body}")
 
-    # ── 3. Extract image from Gemini response ──────────────────────────────────
+    # ── 3. Extract image from response ─────────────────────────────────────────
     response_data = resp.json()
     gemini_image_b64 = None
     gemini_mime = "image/png"
+
     try:
         for part in response_data["candidates"][0]["content"]["parts"]:
             if "inlineData" in part:
                 gemini_image_b64 = part["inlineData"]["data"]
                 gemini_mime = part["inlineData"].get("mimeType", "image/png")
                 break
-    except (KeyError, IndexError):
-        pass
+    except (KeyError, IndexError) as e:
+        logger.error("Could not parse Gemini response: %s | response: %s", e, str(response_data)[:300])
 
     if not gemini_image_b64:
-        raise HTTPException(status_code=502, detail="Gemini returned no image.")
+        # Log what Gemini said if no image
+        text_parts = []
+        try:
+            for part in response_data["candidates"][0]["content"]["parts"]:
+                if "text" in part:
+                    text_parts.append(part["text"])
+        except Exception:
+            pass
+        logger.error("Gemini returned no image. Text parts: %s", text_parts)
+        raise HTTPException(status_code=502, detail=f"Gemini returned no image. Model said: {' '.join(text_parts)[:200]}")
 
     gemini_image_bytes = base64.b64decode(gemini_image_b64)
+    logger.info("Gemini image received: mime=%s size=%d bytes", gemini_mime, len(gemini_image_bytes))
 
-    # ── 4. Save Gemini output → run remove_black_bg → return result ────────────
+    # ── 4. Run remove_black_bg ─────────────────────────────────────────────────
     tmp_dir = tempfile.mkdtemp()
     try:
         ext = ".png" if "png" in gemini_mime else ".jpg"
@@ -117,17 +145,17 @@ async def process(
             output_path=output_path,
             threshold=threshold,
             quality=quality,
-            feather=feather,
+            feather=feather_bool,
         )
 
-        # Read the result and return it as bytes (we clean up the tmp dir ourselves)
         with open(output_path, "rb") as f:
             result_bytes = f.read()
-
+    except Exception as e:
+        logger.exception("Error in remove_black_background")
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
-    # Return as base64 JSON so the browser can display + download it
     return JSONResponse(
         {
             "image": base64.b64encode(result_bytes).decode(),
