@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NanoBanana – Logo Extractor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red:    #E8001C;
+      --red-dk: #B0001A;
+      --red-lt: #FF2040;
+      --bg:     #FFFFFF;
+      --ink:    #0D0D0D;
+      --muted:  #888;
+      --border: #EDEDED;
+      --radius: 18px;
+      --shadow: 0 8px 40px rgba(232,0,28,.08);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    header {
+      padding: 28px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-mark {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--red);
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+    }
+
+    .logo-icon svg { width: 20px; height: 20px; }
+
+    .logo-mark h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .greeting {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .85rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .greeting strong {
+      color: var(--red);
+      font-family: 'Unbounded', sans-serif;
+      font-size: .78rem;
+      font-weight: 600;
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .4; transform: scale(.7); }
+    }
+
+    /* ── Hero ───────────────────────────────────────────────────── */
+    .hero {
+      padding: 64px 48px 0;
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      background: #FFF0F2;
+      color: var(--red);
+      font-family: 'Unbounded', sans-serif;
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+    }
+
+    .hero h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.6rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      max-width: 700px;
+    }
+
+    .hero h2 span { color: var(--red); }
+
+    .hero p {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 500px;
+      line-height: 1.65;
+    }
+
+    /* ── Main layout ─────────────────────────────────────────────── */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      padding: 48px;
+      max-width: 1100px;
+      margin: 40px auto 0;
+      width: 100%;
+    }
+
+    @media (max-width: 780px) {
+      header { padding: 20px 24px; }
+      .hero  { padding: 40px 24px 0; }
+      main   { grid-template-columns: 1fr; padding: 24px; margin-top: 24px; }
+    }
+
+    /* ── Card ────────────────────────────────────────────────────── */
+    .card {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-label {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-label::before {
+      content: '';
+      display: block;
+      width: 6px;
+      height: 6px;
+      background: var(--red);
+      border-radius: 50%;
+    }
+
+    /* ── Drop zone ───────────────────────────────────────────────── */
+    .drop-zone {
+      border: 2px dashed #DDD;
+      border-radius: 14px;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--red);
+      background: #FFF5F6;
+    }
+
+    .drop-zone.has-preview { border-style: solid; border-color: var(--red); }
+
+    .drop-zone input[type="file"] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer;
+      width: 100%; height: 100%;
+    }
+
+    .drop-icon {
+      width: 52px; height: 52px;
+      background: #FFF0F2;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      transition: transform .3s;
+    }
+
+    .drop-zone:hover .drop-icon { transform: translateY(-4px); }
+
+    .drop-icon svg { width: 24px; height: 24px; stroke: var(--red); }
+
+    .drop-title {
+      font-weight: 600;
+      font-size: .95rem;
+      color: var(--ink);
+    }
+
+    .drop-sub {
+      font-size: .8rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .drop-sub kbd {
+      background: #F4F4F4;
+      border: 1px solid #DDD;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: monospace;
+      font-size: .75rem;
+      color: var(--ink);
+    }
+
+    /* ── Preview inside drop zone ────────────────────────────────── */
+    #preview-img {
+      max-width: 100%;
+      max-height: 180px;
+      border-radius: 10px;
+      object-fit: contain;
+      display: none;
+    }
+
+    /* ── Controls ────────────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    label.ctl-label {
+      font-size: .82rem;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .ctl-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    input[type="range"] {
+      width: 130px;
+      accent-color: var(--red);
+      cursor: pointer;
+    }
+
+    .val-badge {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .7rem;
+      font-weight: 600;
+      color: var(--red);
+      min-width: 34px;
+      text-align: right;
+    }
+
+    /* Toggle */
+    .toggle-wrap { display: flex; align-items: center; gap: 10px; }
+
+    .toggle {
+      width: 42px; height: 24px;
+      background: #E0E0E0;
+      border-radius: 100px;
+      position: relative;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .toggle.on { background: var(--red); }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left .2s;
+    }
+
+    .toggle.on::after { left: 21px; }
+
+    /* ── Process button ──────────────────────────────────────────── */
+    .btn-process {
+      width: 100%;
+      padding: 17px;
+      background: var(--red);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      cursor: pointer;
+      transition: background .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(232,0,28,.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-process:hover:not(:disabled) {
+      background: var(--red-dk);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(232,0,28,.35);
+    }
+
+    .btn-process:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+    /* Spinner */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Output panel ────────────────────────────────────────────── */
+    .output-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 280px;
+      gap: 18px;
+    }
+
+    .output-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      color: var(--muted);
+    }
+
+    .output-empty-icon {
+      width: 64px; height: 64px;
+      background: #F7F7F7;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+    }
+
+    .output-empty-icon svg { width: 28px; height: 28px; stroke: #CCC; }
+
+    .output-empty p {
+      font-size: .85rem;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    #result-img {
+      max-width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      border-radius: 14px;
+      display: none;
+      background: repeating-conic-gradient(#F3F3F3 0% 25%, #FFF 0% 50%) 0 0 / 20px 20px;
+    }
+
+    .btn-download {
+      padding: 13px 32px;
+      background: #0D0D0D;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .05em;
+      cursor: pointer;
+      transition: background .2s, transform .15s;
+      text-decoration: none;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-download:hover { background: #333; transform: translateY(-1px); }
+
+    /* ── Steps strip ─────────────────────────────────────────────── */
+    .steps {
+      display: flex;
+      gap: 0;
+      max-width: 1100px;
+      margin: 0 auto 40px;
+      padding: 0 48px;
+      width: 100%;
+    }
+
+    .step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+      position: relative;
+      opacity: .35;
+      transition: opacity .3s;
+    }
+
+    .step.active { opacity: 1; }
+
+    .step::after {
+      content: '';
+      position: absolute;
+      top: 18px; left: 60%;
+      width: 80%; height: 2px;
+      background: var(--border);
+    }
+
+    .step:last-child::after { display: none; }
+
+    .step-num {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: #F4F4F4;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .72rem;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      transition: background .3s, color .3s;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step.active .step-num { background: var(--red); color: #fff; }
+
+    .step-lbl {
+      font-size: .73rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    /* ── Error toast ─────────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 32px; left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      background: #0D0D0D;
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: .85rem;
+      font-weight: 500;
+      z-index: 100;
+      transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    #toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────── -->
+<header>
+  <div class="logo-mark">
+    <div class="logo-icon">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="3" width="7" height="7" rx="2" fill="white" opacity=".9"/>
+        <rect x="10" y="10" width="7" height="7" rx="2" fill="white"/>
+        <rect x="10" y="3" width="7" height="7" rx="2" fill="white" opacity=".5"/>
+        <rect x="3" y="10" width="7" height="7" rx="2" fill="white" opacity=".5"/>
+      </svg>
+    </div>
+    <h1>NanoBanana</h1>
+  </div>
+
+  <div class="greeting">
+    <div class="pulse"></div>
+    Hello, <strong>som3a!</strong>
+  </div>
+</header>
+
+<!-- ── Hero ───────────────────────────────────────────────────── -->
+<div class="hero">
+  <div class="eyebrow">AI-Powered · Instant Results</div>
+  <h2>Turn any logo into<br /><span>perfect transparency</span>.</h2>
+  <p>Upload or paste your logo. We'll whiten it, punch out the black background, and hand you a crisp transparent WebP in seconds.</p>
+</div>
+
+<!-- ── Steps strip ────────────────────────────────────────────── -->
+<div class="steps" style="margin-top:36px">
+  <div class="step active" id="step-1">
+    <div class="step-num">1</div>
+    <div class="step-lbl">Upload</div>
+  </div>
+  <div class="step" id="step-2">
+    <div class="step-num">2</div>
+    <div class="step-lbl">AI Whitens</div>
+  </div>
+  <div class="step" id="step-3">
+    <div class="step-num">3</div>
+    <div class="step-lbl">Remove BG</div>
+  </div>
+  <div class="step" id="step-4">
+    <div class="step-num">4</div>
+    <div class="step-lbl">Download</div>
+  </div>
+</div>
+
+<!-- ── Main grid ──────────────────────────────────────────────── -->
+<main>
+
+  <!-- Left: Input -->
+  <div class="card">
+    <div class="card-label">Input Image</div>
+
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" id="file-input" accept="image/*" />
+      <img id="preview-img" alt="preview" />
+
+      <div class="drop-icon" id="drop-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+      </div>
+
+      <div id="drop-text">
+        <div class="drop-title">Drop your logo here</div>
+        <div class="drop-sub" style="margin-top:4px">
+          or click to browse &nbsp;·&nbsp; paste with <kbd>Ctrl+V</kbd>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="control-row">
+        <label class="ctl-label">Black threshold</label>
+        <div class="ctl-right">
+          <input type="range" id="threshold" min="0" max="120" value="30" />
+          <span class="val-badge" id="threshold-val">30</span>
+        </div>
+      </div>
+      <div class="control-row">
+        <label class="ctl-label">WebP quality</label>
+        <div class="ctl-right">
+          <input type="range" id="quality" min="60" max="100" value="95" />
+          <span class="val-badge" id="quality-val">95</span>
+        </div>
+      </div>
+      <div class="control-row">
+        <label class="ctl-label">Feather edges</label>
+        <div class="toggle-wrap">
+          <div class="toggle on" id="feather-toggle"></div>
+          <span style="font-size:.8rem;color:var(--muted)" id="feather-label">On</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-process" id="process-btn" disabled>
+      <div class="spinner" id="spinner"></div>
+      <span id="btn-text">Process Logo</span>
+    </button>
+  </div>
+
+  <!-- Right: Output -->
+  <div class="card">
+    <div class="card-label">Result</div>
+
+    <div class="output-panel">
+      <div class="output-empty" id="output-empty">
+        <div class="output-empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 12l4-4 4 4M12 8v8"/>
+          </svg>
+        </div>
+        <p>Your transparent logo<br />will appear here.</p>
+      </div>
+
+      <img id="result-img" alt="result" />
+
+      <a id="download-btn" class="btn-download" download="logo_transparent.webp">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+          <path d="M10 3v10M5 9l5 5 5-5"/>
+          <path d="M3 17h14"/>
+        </svg>
+        Download WebP
+      </a>
+    </div>
+  </div>
+
+</main>
+
+<div id="toast"></div>
+
+<script>
+  // ── State ─────────────────────────────────────────────────────────────
+  let selectedFile = null;
+  let feather = true;
+
+  const dropZone   = document.getElementById('drop-zone');
+  const fileInput  = document.getElementById('file-input');
+  const preview    = document.getElementById('preview-img');
+  const dropIcon   = document.getElementById('drop-icon');
+  const dropText   = document.getElementById('drop-text');
+  const processBtn = document.getElementById('process-btn');
+  const spinner    = document.getElementById('spinner');
+  const btnText    = document.getElementById('btn-text');
+  const resultImg  = document.getElementById('result-img');
+  const downloadBtn= document.getElementById('download-btn');
+  const outputEmpty= document.getElementById('output-empty');
+  const toast      = document.getElementById('toast');
+  const thresholdEl= document.getElementById('threshold');
+  const qualityEl  = document.getElementById('quality');
+  const featherToggle = document.getElementById('feather-toggle');
+  const featherLabel  = document.getElementById('feather-label');
+
+  // Steps
+  const steps = [1,2,3,4].map(n => document.getElementById(`step-${n}`));
+  function setStep(n) {
+    steps.forEach((s, i) => s.classList.toggle('active', i < n));
+  }
+
+  // ── Range labels ──────────────────────────────────────────────────────
+  thresholdEl.addEventListener('input', () => {
+    document.getElementById('threshold-val').textContent = thresholdEl.value;
+  });
+  qualityEl.addEventListener('input', () => {
+    document.getElementById('quality-val').textContent = qualityEl.value;
+  });
+
+  // ── Feather toggle ────────────────────────────────────────────────────
+  featherToggle.addEventListener('click', () => {
+    feather = !feather;
+    featherToggle.classList.toggle('on', feather);
+    featherLabel.textContent = feather ? 'On' : 'Off';
+  });
+
+  // ── File handling ─────────────────────────────────────────────────────
+  function loadFile(file) {
+    if (!file || !file.type.startsWith('image/')) {
+      showToast('Please select a valid image file.');
+      return;
+    }
+    selectedFile = file;
+    const url = URL.createObjectURL(file);
+    preview.src = url;
+    preview.style.display = 'block';
+    dropIcon.style.display = 'none';
+    dropText.style.display = 'none';
+    dropZone.classList.add('has-preview');
+    processBtn.disabled = false;
+    setStep(1);
+    // reset output
+    resultImg.style.display     = 'none';
+    downloadBtn.style.display   = 'none';
+    outputEmpty.style.display   = 'flex';
+  }
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) loadFile(fileInput.files[0]);
+  });
+
+  // Drag & drop
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f) loadFile(f);
+  });
+
+  // Paste anywhere
+  document.addEventListener('paste', e => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        const f = item.getAsFile();
+        if (f) { loadFile(f); break; }
+      }
+    }
+  });
+
+  // ── Toast ─────────────────────────────────────────────────────────────
+  function showToast(msg, duration = 3500) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), duration);
+  }
+
+  // ── Process ───────────────────────────────────────────────────────────
+  processBtn.addEventListener('click', async () => {
+    if (!selectedFile) return;
+
+    // UI: loading state
+    processBtn.disabled = true;
+    spinner.style.display = 'block';
+    btnText.textContent = 'Processing…';
+    outputEmpty.style.display   = 'flex';
+    resultImg.style.display     = 'none';
+    downloadBtn.style.display   = 'none';
+    setStep(2);
+
+    const form = new FormData();
+    form.append('file', selectedFile);
+    form.append('threshold', thresholdEl.value);
+    form.append('quality', qualityEl.value);
+    form.append('feather', feather.toString());
+
+    try {
+      setStep(3);
+      const res = await fetch('/process', { method: 'POST', body: form });
+      const data = await res.json();
+
+      if (data.error) throw new Error(data.error);
+
+      setStep(4);
+      const imgSrc = `data:${data.mime};base64,${data.image}`;
+      resultImg.src = imgSrc;
+      resultImg.style.display = 'block';
+      outputEmpty.style.display = 'none';
+
+      downloadBtn.href = imgSrc;
+      downloadBtn.style.display = 'flex';
+
+      showToast('✅ Done! Your logo is transparent.');
+    } catch (err) {
+      showToast(`❌ ${err.message}`);
+      setStep(1);
+    } finally {
+      processBtn.disabled = false;
+      spinner.style.display = 'none';
+      btnText.textContent = 'Process Logo';
+    }
+  });
+</script>
+</body>
+</html>
