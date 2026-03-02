@@ -758,7 +758,8 @@
 
   <script>
     // ── State ─────────────────────────────────────────────────────────────
-    let queue = [];          // {file, cardEl, imgEl, dlBtn}
+    let queue = [];     // { file, idx }
+    let nextIdx = 0;    // auto-increment ID to avoid duplicate name collisions
     let feather = true;
 
     const dropZone = document.getElementById('drop-zone');
@@ -801,52 +802,50 @@
     }
 
     // ── Build a result card ───────────────────────────────────────────────
-    function buildCard(file) {
+    function buildCard(file, idx) {
       const card = document.createElement('div');
       card.className = 'result-card';
 
       const previewUrl = URL.createObjectURL(file);
+      const safeName = file.name.replace(/</g, '&lt;');
+      const dlName = file.name.replace(/\.[^.]+$/, '') + '_transparent.webp';
 
       card.innerHTML = `
-      <div class="card-thumb">
-        <img src="${previewUrl}" alt="${file.name}" />
-        <div class="status-overlay" id="overlay-${file.name.replace(/\W/g, '_')}">
-          <div class="mini-spin"></div>
-          <span>Waiting…</span>
+        <div class="card-thumb">
+          <img src="${previewUrl}" alt="${safeName}" />
+          <div class="status-overlay hidden" data-overlay="${idx}">
+            <div class="mini-spin"></div>
+            <span>Processing…</span>
+          </div>
         </div>
-      </div>
-      <div class="card-footer">
-        <span class="card-name" title="${file.name}">${file.name}</span>
-        <a class="btn-dl disabled" id="dl-${file.name.replace(/\W/g, '_')}" download="${file.name.replace(/\.[^.]+$/, '')}_transparent.webp">
-          ↓ Save
-        </a>
-      </div>
-    `;
+        <div class="card-footer">
+          <span class="card-name" title="${safeName}">${safeName}</span>
+          <a class="btn-dl disabled" data-dl="${idx}" download="${dlName}">
+            ↓ Save
+          </a>
+        </div>
+      `;
 
       return card;
     }
 
-    // Sanitise name → used as ID
-    function sid(name) { return name.replace(/\W/g, '_'); }
-
     // ── Add files to queue ────────────────────────────────────────────────
     function addFiles(files) {
-      const all = Array.from(files);
+      const all = Array.from(files).filter(f => f.type.startsWith('image/'));
       if (all.length === 0) return;
 
-      // Trim to 20 total
       const slots = Math.max(0, 20 - queue.length);
       if (slots === 0) { showToast('Maximum 20 images allowed.'); return; }
       const toAdd = all.slice(0, slots);
       if (all.length > slots) showToast(`Only ${slots} more slot(s) — first ${slots} added.`);
 
-      // Remove empty state
       if (emptyState.parentNode) emptyState.remove();
 
       toAdd.forEach(file => {
-        const card = buildCard(file);
+        const idx = nextIdx++;
+        const card = buildCard(file, idx);
         grid.appendChild(card);
-        queue.push({ file, id: sid(file.name) });
+        queue.push({ file, idx });
       });
 
       processBtn.disabled = false;
@@ -876,11 +875,16 @@
 
     // ── Process one file ──────────────────────────────────────────────────
     async function processOne(item) {
-      const { file, id } = item;
-      const overlay = document.getElementById(`overlay-${id}`);
-      const dlBtn = document.getElementById(`dl-${id}`);
+      const { file, idx } = item;
+      const overlay = document.querySelector(`[data-overlay="${idx}"]`);
+      const dlBtn = document.querySelector(`[data-dl="${idx}"]`);
 
-      // Show processing state
+      if (!overlay || !dlBtn) {
+        console.error('Could not find card elements for idx', idx);
+        return;
+      }
+
+      // Show processing overlay
       overlay.classList.remove('hidden', 'error');
       overlay.innerHTML = `<div class="mini-spin"></div><span>Processing…</span>`;
 
@@ -895,23 +899,25 @@
 
       try {
         const res = await fetch('/process', { method: 'POST', body: form });
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`Server ${res.status}: ${errText.slice(0, 80)}`);
+        }
         const data = await res.json();
         if (data.error) throw new Error(data.error);
 
-        // Update preview with result
         const imgSrc = `data:${data.mime};base64,${data.image}`;
         const thumb = overlay.parentElement.querySelector('img');
         thumb.src = imgSrc;
 
-        // Hide overlay
         overlay.classList.add('hidden');
 
-        // Enable download
         dlBtn.href = imgSrc;
         dlBtn.classList.remove('disabled');
       } catch (err) {
+        overlay.classList.remove('hidden');
         overlay.classList.add('error');
-        overlay.innerHTML = `<span>❌ ${err.message.slice(0, 60)}</span>`;
+        overlay.innerHTML = `<span>❌ ${err.message.slice(0, 80)}</span>`;
       }
     }
 
