@@ -42,7 +42,6 @@
       display: flex;
       flex-direction: column;
       padding-bottom: 80px;
-      /* guarantee toast never clips */
     }
 
     /* ── Header ─────────────────────────────────────────────────── */
@@ -126,7 +125,6 @@
       font-weight: 900;
       line-height: 1.05;
       letter-spacing: -0.03em;
-      color: var(--ink);
       max-width: 700px;
     }
 
@@ -208,7 +206,7 @@
       color: var(--muted);
     }
 
-    /* ── Upload section (top) ────────────────────────────────────── */
+    /* ── Upload section ──────────────────────────────────────────── */
     .upload-section {
       max-width: 1100px;
       margin: 40px auto 0;
@@ -253,15 +251,15 @@
     .drop-zone {
       border: 2px dashed #DDD;
       border-radius: 14px;
-      min-height: 160px;
+      min-height: 100px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       cursor: pointer;
       transition: border-color .2s, background .2s;
-      padding: 24px;
+      padding: 20px;
       text-align: center;
       position: relative;
       overflow: hidden;
@@ -283,32 +281,32 @@
     }
 
     .drop-icon {
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       background: #FFF0F2;
-      border-radius: 14px;
+      border-radius: 12px;
       display: grid;
       place-items: center;
       transition: transform .3s;
     }
 
     .drop-zone:hover .drop-icon {
-      transform: translateY(-4px);
+      transform: translateY(-3px);
     }
 
     .drop-icon svg {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       stroke: var(--red);
     }
 
     .drop-title {
       font-weight: 600;
-      font-size: .95rem;
+      font-size: .9rem;
     }
 
     .drop-sub {
-      font-size: .8rem;
+      font-size: .78rem;
       color: var(--muted);
       line-height: 1.5;
     }
@@ -319,7 +317,69 @@
       border-radius: 4px;
       padding: 1px 6px;
       font-family: monospace;
-      font-size: .75rem;
+      font-size: .72rem;
+    }
+
+    /* ── Upload thumbnail strip ──────────────────────────────────── */
+    .upload-thumbs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .thumb-item {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1.5px solid var(--border);
+      background: #FAFAFA;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .thumb-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 4px;
+    }
+
+    .thumb-remove {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--red);
+      color: #fff;
+      border: none;
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      opacity: 0;
+      transition: opacity .15s;
+    }
+
+    .thumb-item:hover .thumb-remove {
+      opacity: 1;
+    }
+
+    .thumb-count {
+      font-family: 'Unbounded', sans-serif;
+      font-size: .68rem;
+      font-weight: 600;
+      color: var(--muted);
+      align-self: center;
+      padding-left: 4px;
     }
 
     /* ── Controls row ────────────────────────────────────────────── */
@@ -513,7 +573,6 @@
       padding: 12px;
     }
 
-    /* status overlay */
     .card-thumb .status-overlay {
       position: absolute;
       inset: 0;
@@ -655,7 +714,6 @@
 
 <body>
 
-  <!-- ── Header ─────────────────────────────────────────────────── -->
   <header>
     <img class="logo-img" src="https://egyptbestproperties.com/images/CT-EBP-Logos-02.png" alt="EBP Logo" />
     <div class="greeting">
@@ -664,14 +722,12 @@
     </div>
   </header>
 
-  <!-- ── Hero ───────────────────────────────────────────────────── -->
   <div class="hero">
     <div class="eyebrow">AI-Powered · Batch Ready</div>
     <h2>Turn any logo into<br /><span>perfect transparency</span>.</h2>
     <p>Upload up to 20 logos. We'll whiten each one and punch out the black background — all at once.</p>
   </div>
 
-  <!-- ── Steps strip ────────────────────────────────────────────── -->
   <div class="steps" style="margin-top:30px">
     <div class="step active" id="step-1">
       <div class="step-num">1</div>
@@ -698,21 +754,22 @@
 
       <div class="drop-zone" id="drop-zone">
         <input type="file" id="file-input" accept="image/*" multiple />
-
-        <div class="drop-icon">
+        <div class="drop-icon" id="drop-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <polyline points="17 8 12 3 7 8" />
             <line x1="12" y1="3" x2="12" y2="15" />
           </svg>
         </div>
-        <div class="drop-title">Drop up to 20 logos here</div>
-        <div class="drop-sub">
-          or click to browse &nbsp;·&nbsp; paste with <kbd>Ctrl+V</kbd>
+        <div id="drop-text">
+          <div class="drop-title">Drop up to 20 logos here</div>
+          <div class="drop-sub">or click to browse &nbsp;·&nbsp; paste with <kbd>Ctrl+V</kbd></div>
         </div>
       </div>
 
-      <!-- Controls row -->
+      <!-- Thumbnail strip (inside upload card) -->
+      <div id="upload-thumbs" class="upload-thumbs" style="display:none"></div>
+
       <div class="controls" style="margin-top:20px">
         <div class="control-row">
           <label class="ctl-label">Threshold</label>
@@ -758,11 +815,13 @@
 
   <script>
     // ── State ─────────────────────────────────────────────────────────────
-    let queue = [];     // { file, idx }
-    let nextIdx = 0;    // auto-increment ID to avoid duplicate name collisions
+    let queue = [];
+    let nextIdx = 0;
     let feather = true;
 
     const dropZone = document.getElementById('drop-zone');
+    const dropIcon = document.getElementById('drop-icon');
+    const dropText = document.getElementById('drop-text');
     const fileInput = document.getElementById('file-input');
     const processBtn = document.getElementById('process-btn');
     const spinner = document.getElementById('spinner');
@@ -770,6 +829,7 @@
     const toast = document.getElementById('toast');
     const grid = document.getElementById('results-grid');
     const emptyState = document.getElementById('empty-state');
+    const uploadThumbs = document.getElementById('upload-thumbs');
     const steps = [1, 2, 3, 4].map(n => document.getElementById(`step-${n}`));
 
     // ── Range labels ──────────────────────────────────────────────────────
@@ -788,9 +848,7 @@
     });
 
     // ── Steps ─────────────────────────────────────────────────────────────
-    function setStep(n) {
-      steps.forEach((s, i) => s.classList.toggle('active', i < n));
-    }
+    function setStep(n) { steps.forEach((s, i) => s.classList.toggle('active', i < n)); }
 
     // ── Toast ─────────────────────────────────────────────────────────────
     let toastTimer;
@@ -801,54 +859,80 @@
       toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
     }
 
-    // ── Build a result card ───────────────────────────────────────────────
-    function buildCard(file, idx) {
+    // ── Add thumb to upload strip ─────────────────────────────────────────
+    function addThumb(file, idx) {
+      const url = URL.createObjectURL(file);
+      const wrap = document.createElement('div');
+      wrap.className = 'thumb-item';
+      wrap.innerHTML = `
+      <img src="${url}" alt="" />
+      <button class="thumb-remove" title="Remove">×</button>
+    `;
+      uploadThumbs.appendChild(wrap);
+      uploadThumbs.style.display = 'flex';
+
+      wrap.querySelector('.thumb-remove').addEventListener('click', e => {
+        e.stopPropagation();
+        queue = queue.filter(q => q.idx !== idx);
+        wrap.remove();
+        if (queue.length === 0) {
+          uploadThumbs.style.display = 'none';
+          dropIcon.style.display = '';
+          dropText.style.display = '';
+          processBtn.disabled = true;
+          btnText.textContent = 'Process All';
+        } else {
+          btnText.textContent = `Process All (${queue.length})`;
+        }
+      });
+    }
+
+    // ── Build a result card (output only — created on Process) ────────────
+    function buildResultCard(file, idx) {
       const card = document.createElement('div');
       card.className = 'result-card';
-
       const previewUrl = URL.createObjectURL(file);
       const safeName = file.name.replace(/</g, '&lt;');
       const dlName = file.name.replace(/\.[^.]+$/, '') + '_transparent.webp';
 
       card.innerHTML = `
-        <div class="card-thumb">
-          <img src="${previewUrl}" alt="${safeName}" />
-          <div class="status-overlay hidden" data-overlay="${idx}">
-            <div class="mini-spin"></div>
-            <span>Processing…</span>
-          </div>
+      <div class="card-thumb">
+        <img src="${previewUrl}" alt="${safeName}" />
+        <div class="status-overlay" data-overlay="${idx}">
+          <div class="mini-spin"></div>
+          <span>Processing…</span>
         </div>
-        <div class="card-footer">
-          <span class="card-name" title="${safeName}">${safeName}</span>
-          <a class="btn-dl disabled" data-dl="${idx}" download="${dlName}">
-            ↓ Save
-          </a>
-        </div>
-      `;
-
+      </div>
+      <div class="card-footer">
+        <span class="card-name" title="${safeName}">${safeName}</span>
+        <a class="btn-dl disabled" data-dl="${idx}" download="${dlName}">↓ Save</a>
+      </div>
+    `;
       return card;
     }
 
-    // ── Add files to queue ────────────────────────────────────────────────
+    // ── Add files to queue (shows in upload strip, NOT results) ───────────
     function addFiles(files) {
       const all = Array.from(files).filter(f => f.type.startsWith('image/'));
-      if (all.length === 0) return;
+      if (!all.length) return;
 
       const slots = Math.max(0, 20 - queue.length);
       if (slots === 0) { showToast('Maximum 20 images allowed.'); return; }
       const toAdd = all.slice(0, slots);
       if (all.length > slots) showToast(`Only ${slots} more slot(s) — first ${slots} added.`);
 
-      if (emptyState.parentNode) emptyState.remove();
-
       toAdd.forEach(file => {
         const idx = nextIdx++;
-        const card = buildCard(file, idx);
-        grid.appendChild(card);
         queue.push({ file, idx });
+        addThumb(file, idx);
       });
 
+      // Collapse the big prompt text once files are present
+      dropIcon.style.display = 'none';
+      dropText.style.display = 'none';
+
       processBtn.disabled = false;
+      btnText.textContent = `Process All (${queue.length})`;
       setStep(1);
     }
 
@@ -863,14 +947,11 @@
 
     document.addEventListener('paste', e => {
       const items = e.clipboardData?.items || [];
-      const imageFiles = [];
+      const imgs = [];
       for (const item of items) {
-        if (item.type.startsWith('image/')) {
-          const f = item.getAsFile();
-          if (f) imageFiles.push(f);
-        }
+        if (item.type.startsWith('image/')) { const f = item.getAsFile(); if (f) imgs.push(f); }
       }
-      if (imageFiles.length) addFiles(imageFiles);
+      if (imgs.length) addFiles(imgs);
     });
 
     // ── Process one file ──────────────────────────────────────────────────
@@ -878,44 +959,26 @@
       const { file, idx } = item;
       const overlay = document.querySelector(`[data-overlay="${idx}"]`);
       const dlBtn = document.querySelector(`[data-dl="${idx}"]`);
-
-      if (!overlay || !dlBtn) {
-        console.error('Could not find card elements for idx', idx);
-        return;
-      }
-
-      // Show processing overlay
-      overlay.classList.remove('hidden', 'error');
-      overlay.innerHTML = `<div class="mini-spin"></div><span>Processing…</span>`;
-
-      const threshold = document.getElementById('threshold').value;
-      const quality = document.getElementById('quality').value;
+      if (!overlay || !dlBtn) return;
 
       const form = new FormData();
       form.append('file', file);
-      form.append('threshold', threshold);
-      form.append('quality', quality);
+      form.append('threshold', document.getElementById('threshold').value);
+      form.append('quality', document.getElementById('quality').value);
       form.append('feather', feather.toString());
 
       try {
         const res = await fetch('/process', { method: 'POST', body: form });
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(`Server ${res.status}: ${errText.slice(0, 80)}`);
-        }
+        if (!res.ok) { const t = await res.text(); throw new Error(`Server ${res.status}: ${t.slice(0, 80)}`); }
         const data = await res.json();
         if (data.error) throw new Error(data.error);
 
         const imgSrc = `data:${data.mime};base64,${data.image}`;
-        const thumb = overlay.parentElement.querySelector('img');
-        thumb.src = imgSrc;
-
+        overlay.parentElement.querySelector('img').src = imgSrc;
         overlay.classList.add('hidden');
-
         dlBtn.href = imgSrc;
         dlBtn.classList.remove('disabled');
       } catch (err) {
-        overlay.classList.remove('hidden');
         overlay.classList.add('error');
         overlay.innerHTML = `<span>❌ ${err.message.slice(0, 80)}</span>`;
       }
@@ -923,12 +986,16 @@
 
     // ── Process all concurrently ──────────────────────────────────────────
     processBtn.addEventListener('click', async () => {
-      if (queue.length === 0) return;
+      if (!queue.length) return;
 
       processBtn.disabled = true;
       spinner.style.display = 'block';
       btnText.textContent = `Processing ${queue.length}…`;
       setStep(2);
+
+      // Create result cards in the results grid NOW (not on upload)
+      if (emptyState.parentNode) emptyState.remove();
+      queue.forEach(item => grid.appendChild(buildResultCard(item.file, item.idx)));
 
       await Promise.all(queue.map(processOne));
 
