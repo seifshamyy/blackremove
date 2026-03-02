@@ -5,6 +5,7 @@ import shutil
 import tempfile
 
 import httpx
+from dotenv import load_dotenv
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -12,10 +13,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from remove_black_bg import remove_black_background
 
+load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyDqOM04OQpTAkWmbAVJxMNBnN9GEDkMYLw")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    raise RuntimeError("GEMINI_API_KEY env variable is required. Set it in .env or export it.")
+
 GEMINI_URL = (
     "https://generativelanguage.googleapis.com/v1beta"
     "/models/gemini-3.1-flash-image-preview:generateContent"

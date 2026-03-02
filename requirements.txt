@@ -4,3 +4,4 @@ python-multipart
 Pillow
 numpy
 httpx
+python-dotenv
