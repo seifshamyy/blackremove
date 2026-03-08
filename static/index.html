@@ -4,25 +4,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Standardize Brand Assets</title>
+  <title>Logo BG Remover</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+    rel="stylesheet" />
   <!-- JSZip for Download All -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     :root {
-      --primary: #D93025;
-      /* Google Red */
-      --primary-hover: #B31B12;
-      --bg: #F8F9FA;
-      --surface: #FFFFFF;
-      --on-surface: #202124;
-      --on-surface-variant: #5F6368;
-      --outline: #DADCE0;
-      --radius-lg: 24px;
-      --radius-md: 12px;
-      --radius-sm: 8px;
+      --red: #E8001C;
+      --red-dk: #B0001A;
+      --bg: #FFFFFF;
+      --ink: #0D0D0D;
+      --muted: #888;
+      --border: #EDEDED;
+      --radius: 18px;
+      --shadow: 0 8px 40px rgba(232, 0, 28, .08);
     }
 
     html {
@@ -30,69 +37,116 @@
     }
 
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-family: 'DM Sans', sans-serif;
       background: var(--bg);
-      color: var(--on-surface);
+      color: var(--ink);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       padding-bottom: 80px;
-      -webkit-font-smoothing: antialiased;
     }
 
+    /* ── Header ─────────────────────────────────────────────────── */
     header {
-      padding: 16px 48px;
+      padding: 20px 48px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid var(--outline);
-      background: var(--surface);
+      border-bottom: 1px solid var(--border);
     }
 
     .logo-img {
-      height: 32px;
+      height: 40px;
       width: auto;
       object-fit: contain;
     }
 
-    .header-tag {
-      font-size: 0.875rem;
-      color: var(--on-surface-variant);
+    .greeting {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .85rem;
+      color: var(--muted);
       font-weight: 500;
-      letter-spacing: 0.2px;
+    }
+
+    .greeting strong {
+      color: var(--red);
+      font-family: 'Unbounded', sans-serif;
+      font-size: .78rem;
+      font-weight: 600;
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: .4;
+        transform: scale(.7);
+      }
     }
 
     /* ── Hero ───────────────────────────────────────────────────── */
     .hero {
-      padding: 64px 48px 40px;
-      max-width: 900px;
+      padding: 52px 48px 0;
+      max-width: 1100px;
       margin: 0 auto;
       width: 100%;
-      text-align: center;
     }
 
-    .hero h1 {
-      font-size: clamp(2rem, 5vw, 3.5rem);
-      font-weight: 700;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      color: var(--on-surface);
+    .eyebrow {
+      display: inline-block;
+      background: #FFF0F2;
+      color: var(--red);
+      font-family: 'Unbounded', sans-serif;
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 100px;
       margin-bottom: 20px;
     }
 
+    .hero h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.8rem, 4.5vw, 3.2rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      max-width: 700px;
+    }
+
+    .hero h2 span {
+      color: var(--red);
+    }
+
     .hero p {
-      color: var(--on-surface-variant);
-      font-size: 1.25rem;
-      max-width: 640px;
-      margin: 0 auto;
-      line-height: 1.5;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 500px;
+      line-height: 1.65;
     }
 
     /* ── Steps strip ─────────────────────────────────────────────── */
     .steps {
       display: flex;
-      max-width: 800px;
-      margin: 0 auto 48px;
+      max-width: 1100px;
+      margin: 36px auto 0;
       padding: 0 48px;
       width: 100%;
     }
@@ -102,19 +156,25 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
       text-align: center;
       position: relative;
+      opacity: .35;
+      transition: opacity .3s;
+    }
+
+    .step.active {
+      opacity: 1;
     }
 
     .step::after {
       content: '';
       position: absolute;
-      top: 16px;
-      left: 70%;
-      width: 60%;
-      height: 1px;
-      background: var(--outline);
+      top: 18px;
+      left: 60%;
+      width: 80%;
+      height: 2px;
+      background: var(--border);
     }
 
     .step:last-child::after {
@@ -122,62 +182,62 @@
     }
 
     .step-num {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      background: #fff;
-      border: 1px solid var(--outline);
-      font-size: 0.75rem;
-      font-weight: 600;
+      background: #F4F4F4;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .72rem;
+      font-weight: 700;
       display: grid;
       place-items: center;
-      color: var(--on-surface-variant);
-      transition: all 0.3s;
+      color: var(--muted);
+      transition: background .3s, color .3s;
       position: relative;
       z-index: 1;
     }
 
     .step.active .step-num {
-      background: var(--primary);
-      border-color: var(--primary);
+      background: var(--red);
       color: #fff;
     }
 
     .step-lbl {
-      font-size: 0.75rem;
+      font-size: .73rem;
       font-weight: 500;
-      color: var(--on-surface-variant);
-    }
-
-    .step.active .step-lbl {
-      color: var(--on-surface);
-      font-weight: 600;
+      color: var(--muted);
     }
 
     /* ── Upload section ──────────────────────────────────────────── */
     .upload-section {
-      max-width: 900px;
-      margin: 0 auto;
+      max-width: 1100px;
+      margin: 40px auto 0;
       padding: 0 48px;
       width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
     }
 
     .card {
-      background: var(--surface);
-      border: 1px solid var(--outline);
-      border-radius: var(--radius-lg);
-      padding: 32px;
-      box-shadow: none;
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      box-shadow: var(--shadow);
     }
 
     .card-label {
-      font-size: 1.125rem;
-      font-weight: 500;
-      color: var(--on-surface);
-      margin-bottom: 24px;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
+      margin-bottom: 18px;
     }
 
     .card-label::before {
@@ -191,66 +251,75 @@
 
     /* ── Drop zone ───────────────────────────────────────────────── */
     .drop-zone {
-      border: 1px dashed var(--outline);
-      border-radius: var(--radius-md);
-      min-height: 160px;
+      border: 2px dashed #DDD;
+      border-radius: 14px;
+      min-height: 100px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      padding: 32px;
+      transition: border-color .2s, background .2s;
+      padding: 20px;
       text-align: center;
       position: relative;
+      overflow: hidden;
     }
 
     .drop-zone:hover,
     .drop-zone.drag-over {
-      border-color: var(--primary);
-      background: rgba(217, 48, 37, 0.04);
+      border-color: var(--red);
+      background: #FFF5F6;
+    }
+
+    .drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
     }
 
     .drop-icon {
-      width: 48px;
-      height: 48px;
-      background: rgba(217, 48, 37, 0.08);
-      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      background: #FFF0F2;
+      border-radius: 12px;
       display: grid;
       place-items: center;
-      transition: transform 0.2s;
+      transition: transform .3s;
     }
 
     .drop-zone:hover .drop-icon {
-      transform: scale(1.1);
+      transform: translateY(-3px);
     }
 
     .drop-icon svg {
-      width: 24px;
-      height: 24px;
-      stroke: var(--primary);
+      width: 20px;
+      height: 20px;
+      stroke: var(--red);
     }
 
     .drop-title {
-      font-weight: 500;
-      font-size: 1rem;
-      color: var(--on-surface);
+      font-weight: 600;
+      font-size: .9rem;
     }
 
     .drop-sub {
-      font-size: 0.875rem;
-      color: var(--on-surface-variant);
+      font-size: .78rem;
+      color: var(--muted);
+      line-height: 1.5;
     }
 
     .drop-sub kbd {
-      background: #F1F3F4;
-      border: 1px solid var(--outline);
+      background: #F4F4F4;
+      border: 1px solid #DDD;
       border-radius: 4px;
-      padding: 2px 6px;
-      font-family: inherit;
-      font-size: 0.75rem;
-      font-weight: 600;
+      padding: 1px 6px;
+      font-family: monospace;
+      font-size: .72rem;
     }
 
     /* ── Upload thumbnail strip ──────────────────────────────────── */
@@ -265,14 +334,14 @@
 
     .thumb-item {
       position: relative;
-      width: 64px;
-      height: 64px;
-      border-radius: var(--radius-sm);
+      width: 72px;
+      height: 72px;
+      border-radius: 10px;
       overflow: hidden;
-      border: 1px solid var(--outline);
+      border: 1.5px solid var(--border);
 
       /* Darker checkerboard so white logos are visible during upload phase */
-      background: repeating-conic-gradient(#303030 0% 25%, #1a1a1a 0% 50%) 0 0 / 16px 16px;
+      background: repeating-conic-gradient(#303030 0% 25%, #1a1a1a 0% 50%) 0 0 / 18px 18px;
 
       display: flex;
       align-items: center;
@@ -331,27 +400,26 @@
     .control-row {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 10px;
     }
 
     label.ctl-label {
-      font-size: 0.875rem;
+      font-size: .82rem;
       font-weight: 500;
-      color: var(--on-surface-variant);
-      min-width: 80px;
     }
 
     input[type="range"] {
-      width: 140px;
-      accent-color: var(--primary);
+      width: 110px;
+      accent-color: var(--red);
       cursor: pointer;
     }
 
     .val-badge {
-      font-size: 0.875rem;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .7rem;
       font-weight: 600;
-      color: var(--primary);
-      min-width: 40px;
+      color: var(--red);
+      min-width: 32px;
     }
 
     .toggle-wrap {
@@ -361,8 +429,8 @@
     }
 
     .toggle {
-      width: 36px;
-      height: 20px;
+      width: 40px;
+      height: 22px;
       background: #E0E0E0;
       border-radius: 100px;
       position: relative;
@@ -371,24 +439,23 @@
     }
 
     .toggle.on {
-      background: var(--primary);
+      background: var(--red);
     }
 
     .toggle::after {
       content: '';
       position: absolute;
-      top: 2px;
-      left: 2px;
+      top: 3px;
+      left: 3px;
       width: 16px;
       height: 16px;
       background: #fff;
       border-radius: 50%;
       transition: left .2s;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     }
 
     .toggle.on::after {
-      left: 18px;
+      left: 21px;
     }
 
     .spacer {
@@ -397,30 +464,34 @@
 
     /* ── Process button ─────────────────────────────────────────── */
     .btn-process {
-      padding: 10px 24px;
-      background: var(--primary);
+      padding: 14px 28px;
+      background: var(--red);
       color: #fff;
       border: none;
-      border-radius: 24px;
-      font-size: 0.875rem;
+      border-radius: 12px;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .75rem;
       font-weight: 600;
-      letter-spacing: 0.25px;
+      letter-spacing: .04em;
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: background .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(232, 0, 28, .25);
       display: flex;
       align-items: center;
       gap: 10px;
+      white-space: nowrap;
     }
 
     .btn-process:hover:not(:disabled) {
-      background: var(--primary-hover);
-      box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+      background: var(--red-dk);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(232, 0, 28, .35);
     }
 
     .btn-process:disabled {
-      background: #E8EAED;
-      color: #9AA0A6;
+      opacity: .55;
       cursor: not-allowed;
+      transform: none;
     }
 
     .spinner {
@@ -441,46 +512,62 @@
 
     /* ── Results grid ────────────────────────────────────────────── */
     .results-section {
-      max-width: 900px;
-      margin: 48px auto;
+      max-width: 1100px;
+      margin: 32px auto 40px;
       padding: 0 48px;
       width: 100%;
     }
 
     .results-header {
-      font-size: 1.125rem;
-      font-weight: 500;
-      color: var(--on-surface);
+      font-family: 'Unbounded', sans-serif;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+
+      /* Flex to right-align the download button */
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 24px;
+      margin-bottom: 18px;
       width: 100%;
     }
 
     .results-header-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
+    }
+
+    .results-header-left::before {
+      content: '';
+      display: block;
+      width: 6px;
+      height: 6px;
+      background: var(--red);
+      border-radius: 50%;
     }
 
     .btn-dl-all {
       padding: 8px 16px;
-      background: var(--on-surface);
+      background: var(--ink);
       color: #fff;
       border: none;
-      border-radius: 20px;
-      font-size: 0.8125rem;
-      font-weight: 500;
+      border-radius: 8px;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .65rem;
+      font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
-      transition: all 0.2s;
+      gap: 6px;
+      transition: background .2s, transform .2s;
     }
 
     .btn-dl-all:hover {
-      background: #3c4043;
+      background: #333;
+      transform: translateY(-1px);
     }
 
     .btn-dl-all.hidden {
@@ -489,23 +576,24 @@
 
     #results-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 18px;
     }
 
     /* ── Result card ─────────────────────────────────────────────── */
     .result-card {
-      border: 1px solid var(--outline);
-      border-radius: var(--radius-md);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      background: var(--surface);
-      transition: border-color 0.2s;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .05);
+      transition: box-shadow .2s, transform .2s;
     }
 
     .result-card:hover {
-      border-color: #BDBDBD;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, .1);
+      transform: translateY(-2px);
     }
 
     .card-thumb {
@@ -513,7 +601,7 @@
       padding-bottom: 75%;
       position: relative;
       /* Darker checkerboard so white logos are highly visible */
-      background: repeating-conic-gradient(#303030 0% 25%, #1a1a1a 0% 50%) 0 0 / 16px 16px;
+      background: repeating-conic-gradient(#303030 0% 25%, #1a1a1a 0% 50%) 0 0 / 18px 18px;
     }
 
     .card-thumb img {
@@ -551,8 +639,8 @@
     }
 
     .card-thumb .status-overlay.error {
-      background: rgba(252, 232, 230, .95);
-      color: var(--primary);
+      background: rgba(255, 240, 242, .95);
+      color: var(--red);
     }
 
     .card-thumb .status-overlay.hidden {
@@ -569,9 +657,9 @@
     }
 
     .card-name {
-      font-size: 0.8125rem;
-      color: var(--on-surface-variant);
-      font-weight: 400;
+      font-size: .75rem;
+      color: var(--muted);
+      font-weight: 500;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -580,23 +668,24 @@
 
     .btn-dl {
       padding: 6px 14px;
-      background: transparent;
-      color: var(--primary);
-      border: 1px solid var(--outline);
-      border-radius: 18px;
-      font-size: 0.75rem;
+      background: var(--ink);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .62rem;
       font-weight: 600;
       cursor: pointer;
       text-decoration: none;
       display: flex;
       align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
+      gap: 5px;
+      transition: background .2s;
+      white-space: nowrap;
     }
 
     .btn-dl:hover {
-      background: rgba(217, 48, 37, 0.04);
-      border-color: var(--primary);
+      background: #333;
     }
 
     .btn-dl:disabled,
@@ -669,27 +758,30 @@
 
   <header>
     <img class="logo-img" src="https://egyptbestproperties.com/images/CT-EBP-Logos-02.png" alt="EBP Logo" />
-    <div class="header-tag">Standardize Brand Assets</div>
+    <div class="greeting">
+      <div class="pulse"></div>
+      Hello, <strong>som3a!</strong>
+    </div>
   </header>
 
   <div class="hero">
-    <h1>Standardize assets at scale.</h1>
-    <p>Upload your brand logos to automatically normalize colors and generate high-quality transparent assets for
-      production.</p>
+    <div class="eyebrow">AI-Powered · Batch Ready</div>
+    <h2>Turn any logo into<br /><span>perfect transparency</span>.</h2>
+    <p>Upload up to 20 logos. We'll whiten each one and punch out the black background — all at once.</p>
   </div>
 
   <div class="steps" style="margin-top:30px">
     <div class="step active" id="step-1">
       <div class="step-num">1</div>
-      <div class="step-lbl">Queue</div>
+      <div class="step-lbl">Upload</div>
     </div>
     <div class="step" id="step-2">
       <div class="step-num">2</div>
-      <div class="step-lbl">Process</div>
+      <div class="step-lbl">AI Whitens</div>
     </div>
     <div class="step" id="step-3">
       <div class="step-num">3</div>
-      <div class="step-lbl">Finalize</div>
+      <div class="step-lbl">Remove BG</div>
     </div>
     <div class="step" id="step-4">
       <div class="step-num">4</div>
@@ -700,7 +792,7 @@
   <!-- ── Upload card ────────────────────────────────────────────── -->
   <div class="upload-section">
     <div class="card">
-      <div class="card-label">Asset Batch Processing</div>
+      <div class="card-label">Upload Logos</div>
 
       <div class="drop-zone" id="drop-zone">
         <input type="file" id="file-input" accept="image/*" multiple />
@@ -712,8 +804,8 @@
           </svg>
         </div>
         <div id="drop-text">
-          <div class="drop-title">Select or drop up to 20 logos</div>
-          <div class="drop-sub">JPG, PNG, WebP supported &nbsp;·&nbsp; paste with <kbd>Ctrl+V</kbd></div>
+          <div class="drop-title">Drop up to 20 logos here</div>
+          <div class="drop-sub">or click to browse &nbsp;·&nbsp; paste with <kbd>Ctrl+V</kbd></div>
         </div>
       </div>
 
@@ -741,7 +833,7 @@
         <div class="spacer"></div>
         <button class="btn-process" id="process-btn" disabled>
           <div class="spinner" id="spinner"></div>
-          <span id="btn-text">Start Processing</span>
+          <span id="btn-text">Process All</span>
         </button>
       </div>
     </div>
@@ -750,7 +842,7 @@
   <!-- ── Results ────────────────────────────────────────────────── -->
   <div class="results-section">
     <div class="results-header">
-      <div class="results-header-left">Processed Assets</div>
+      <div class="results-header-left">Results</div>
       <button id="dl-all-btn" class="btn-dl-all hidden">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
           stroke-linecap="round" stroke-linejoin="round">
@@ -842,10 +934,10 @@
           dropIcon.style.display = '';
           dropText.style.display = '';
           processBtn.disabled = true;
-          btnText.textContent = 'Start Processing';
+          btnText.textContent = 'Process All';
           dlAllBtn.classList.add('hidden'); // Hide zip button if queue cleared
         } else {
-          btnText.textContent = `Start Processing (${queue.length})`;
+          btnText.textContent = `Process All (${queue.length})`;
         }
       });
     }
@@ -895,7 +987,7 @@
       dropText.style.display = 'none';
 
       processBtn.disabled = false;
-      btnText.textContent = `Start Processing (${queue.length})`;
+      btnText.textContent = `Process All (${queue.length})`;
       setStep(1);
     }
 
@@ -953,7 +1045,7 @@
 
       processBtn.disabled = true;
       spinner.style.display = 'block';
-      btnText.textContent = `Processing Batch (${queue.length})…`;
+      btnText.textContent = `Processing ${queue.length}…`;
       setStep(2);
 
       // Create result cards in the results grid NOW (not on upload)
@@ -966,7 +1058,7 @@
 
       setStep(4);
       spinner.style.display = 'none';
-      btnText.textContent = 'Start Processing';
+      btnText.textContent = 'Process All';
       processBtn.disabled = false;
 
       // Show download all if multiple files successfully processed
