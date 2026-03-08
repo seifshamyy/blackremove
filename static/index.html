@@ -10,6 +10,8 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
     rel="stylesheet" />
+  <!-- JSZip for Download All -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     *,
     *::before,
@@ -337,7 +339,10 @@
       border-radius: 10px;
       overflow: hidden;
       border: 1.5px solid var(--border);
-      background: #FAFAFA;
+      
+      /* Darker checkerboard so white logos are visible during upload phase */
+      background: repeating-conic-gradient(#303030 0% 25%, #1a1a1a 0% 50%) 0 0 / 18px 18px;
+      
       display: flex;
       align-items: center;
       justify-content: center;
@@ -520,19 +525,53 @@
       letter-spacing: .1em;
       text-transform: uppercase;
       color: var(--muted);
+      
+      /* Flex to right-align the download button */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      width: 100%;
+    }
+
+    .results-header-left {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 18px;
     }
 
-    .results-header::before {
+    .results-header-left::before {
       content: '';
       display: block;
       width: 6px;
       height: 6px;
       background: var(--red);
       border-radius: 50%;
+    }
+
+    .btn-dl-all {
+      padding: 8px 16px;
+      background: var(--ink);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .65rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .2s, transform .2s;
+    }
+
+    .btn-dl-all:hover {
+      background: #333;
+      transform: translateY(-1px);
+    }
+
+    .btn-dl-all.hidden {
+      display: none;
     }
 
     #results-grid {
@@ -561,7 +600,8 @@
       width: 100%;
       padding-bottom: 75%;
       position: relative;
-      background: repeating-conic-gradient(#F3F3F3 0% 25%, #FFF 0% 50%) 0 0 / 18px 18px;
+      /* Darker checkerboard so white logos are highly visible */
+      background: repeating-conic-gradient(#303030 0% 25%, #1a1a1a 0% 50%) 0 0 / 18px 18px;
     }
 
     .card-thumb img {
@@ -576,7 +616,7 @@
     .card-thumb .status-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(255, 255, 255, .88);
+      background: rgba(13, 13, 13, .85); /* Dark overlay */
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -584,7 +624,7 @@
       gap: 10px;
       font-size: .82rem;
       font-weight: 500;
-      color: var(--ink);
+      color: #FFF; /* Light loading text */
     }
 
     .card-thumb .status-overlay .mini-spin {
@@ -799,7 +839,13 @@
 
   <!-- ── Results ────────────────────────────────────────────────── -->
   <div class="results-section">
-    <div class="results-header">Results</div>
+    <div class="results-header">
+      <div class="results-header-left">Results</div>
+      <button id="dl-all-btn" class="btn-dl-all hidden">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download All (.zip)
+      </button>
+    </div>
     <div id="results-grid">
       <div id="empty-state">
         <svg viewBox="0 0 40 40" fill="none" width="40" height="40" stroke-width="1.5">
@@ -830,6 +876,7 @@
     const grid = document.getElementById('results-grid');
     const emptyState = document.getElementById('empty-state');
     const uploadThumbs = document.getElementById('upload-thumbs');
+    const dlAllBtn = document.getElementById('dl-all-btn');
     const steps = [1, 2, 3, 4].map(n => document.getElementById(`step-${n}`));
 
     // ── Range labels ──────────────────────────────────────────────────────
@@ -881,6 +928,7 @@
           dropText.style.display = '';
           processBtn.disabled = true;
           btnText.textContent = 'Process All';
+          dlAllBtn.classList.add('hidden'); // Hide zip button if queue cleared
         } else {
           btnText.textContent = `Process All (${queue.length})`;
         }
@@ -997,13 +1045,67 @@
       if (emptyState.parentNode) emptyState.remove();
       queue.forEach(item => grid.appendChild(buildResultCard(item.file, item.idx)));
 
+      dlAllBtn.classList.add('hidden'); // Hide zip while processing new batch
+
       await Promise.all(queue.map(processOne));
 
       setStep(4);
       spinner.style.display = 'none';
       btnText.textContent = 'Process All';
       processBtn.disabled = false;
+      
+      // Show download all if multiple files successfully processed
+      const activeDownloads = document.querySelectorAll('.btn-dl:not(.disabled)');
+      if (activeDownloads.length > 1) {
+        dlAllBtn.classList.remove('hidden');
+      }
+
       showToast(`✅ Done! ${queue.length} logo${queue.length > 1 ? 's' : ''} processed.`);
+    });
+    
+    // ── Download All (JSZip) ──────────────────────────────────────────────
+    dlAllBtn.addEventListener('click', async () => {
+      const activeDownloads = Array.from(document.querySelectorAll('.btn-dl:not(.disabled)'));
+      if (activeDownloads.length === 0) return;
+
+      const originalText = dlAllBtn.innerHTML;
+      dlAllBtn.innerHTML = '<div class="mini-spin" style="width:12px;height:12px;border-width:2px;"></div> Zipping...';
+      dlAllBtn.style.pointerEvents = 'none';
+
+      try {
+        const zip = new JSZip();
+        const folder = zip.folder("transparent_logos");
+
+        // Fetch each base64 string and add it to the zip
+        for (const link of activeDownloads) {
+          const dlName = link.getAttribute('download') || 'logo.webp';
+          const href = link.href; // "data:image/webp;base64,......."
+          const base64Data = href.split(',')[1];
+          if (base64Data) {
+            folder.file(dlName, base64Data, { base64: true });
+          }
+        }
+
+        const blob = await zip.generateAsync({ type: "blob" });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Logos_Transparent_${new Date().getTime()}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 100);
+      } catch (err) {
+        console.error("Zip Error:", err);
+        showToast("Error creating zip file.");
+      } finally {
+        dlAllBtn.innerHTML = originalText;
+        dlAllBtn.style.pointerEvents = 'auto';
+      }
     });
   </script>
 </body>
